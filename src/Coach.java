@@ -16,14 +16,18 @@ public class Coach extends Person{
     {
         if (Main.player[ix].playerOnWhichTeam ==0 )
         {
-
-            //Добавяме играча в конкретния отбор. * Метода връща истина ако играча е добавен успешно
-            if(Main.team[this.onWhichTeam].addNewPlayer(ix) ) {
-                //играча ни да получи принадлежността на треньора
+            if (Main.team[this.onWhichTeam].addNewPlayer(ix) ) //addNewPlayer връща истина само ако е ОК закупуването
+            {
+                //играча ни да се присъедини към тима, чийто принадлежност е на треньора
                 Main.player[ix].playerOnWhichTeam = this.onWhichTeam;
+                Main.player[ix].fromTeam = Main.team[this.onWhichTeam];
             }
             //Показва наличния склад към момента за същия отбор
             System.out.println(Main.team[this.onWhichTeam].showSquadLineByPositions());
+        }
+        else
+        {
+            System.out.println("Този играч вече е закупен!");
         }
     }
 

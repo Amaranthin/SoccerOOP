@@ -10,8 +10,9 @@ public class FootballerLastGameStats extends Footballer {
 
     public FootballerLastGameStats(int ix)
     {
+        //нуждаем се от празен конструктор в родителски€ клас
+        //и ще копираме само двете полета от инстанци€та в MAIN понеже не ни тр€бва пълно копиране на обекта
         this.firstName = Main.player[ix].firstName;
         this.familyName = Main.player[ix].familyName;
-
     }
 }

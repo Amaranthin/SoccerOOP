@@ -1,17 +1,27 @@
+import java.util.Random;
+
 public class Team {
 
 
     private String teamName;
     public Coach coach;
     public int countFootballers = 0;
-    public Footballer[] player = new Footballer[25];
+    public boolean hadGoalkeeper = false;
+
+    public Footballer[] player = new Footballer[12]; //не използваме 0
+
 
     public boolean isTeamCompleted = false;
+    public int totalTeamPrice = 0;
 
     private int goalkeepers = 0;
-    private int defenders = 0;
-    private int midfields = 0;
+    protected int defenders = 0; //използваме го при пасове и дрибъл
+    protected int midfields = 0; //използваме го при пасове
     private int forwards = 0;
+    public int teamColor = 0;
+    public int teamTimeBallOwnership;  // увеличава се с 1 след всяко задържане на топката в отбора
+    public Team currentEnemyTeam;
+    public int teamGoalsInCurrentMatch = 0;
 
     public Team()
     {
@@ -22,11 +32,16 @@ public class Team {
     {
         setTeamName(teamName);
     }
+    public Team(String teamName, int color)
+    {
+        setTeamName(teamName);
+        this.teamColor = color; //това няма да е в пропърти
+    }
 
     public void setTeamName(String teamName)
     {
-        //изнесох го в пропърти заради евентуална валицадия
-        //ако държим да е на латиница или не по-дълго от определена дължина
+        //изнесох го в пропърти заради евентуална валидация
+        //а и реших да задаваме имената извиквайки пропъртито след като вече отборите са създадени
         this.teamName = teamName;
     }
 
@@ -44,7 +59,7 @@ public class Team {
                 this.player[this.countFootballers] = Main.player[ix];
 
                 //увеличаваме броя на играчите на съответната позиция
-                if (Main.player[ix].fieldPosition.equals("Goalkeeper")) this.goalkeepers++;
+                if (Main.player[ix].fieldPosition.equals("Goalkeeper")) {this.goalkeepers++; this.hadGoalkeeper = true;}
                 if (Main.player[ix].fieldPosition.equals("Defender")) this.defenders++;
                 if (Main.player[ix].fieldPosition.equals("Midfield")) this.midfields++;
                 if (Main.player[ix].fieldPosition.equals("Forward")) this.forwards++;
@@ -53,6 +68,7 @@ public class Team {
                 {
                     this.isTeamCompleted = true;
                     sortPlayerList();
+                    setTotalTeamPrice();
                 }
             }
         }
@@ -65,6 +81,12 @@ public class Team {
     public String getTeamName()
     {
         return this.teamName;
+    }
+
+    public String getColoredTeamName()
+    {
+        String clr = Match.getColor(this.teamColor);
+        return clr+this.teamName+Match.getColor(0);
     }
 
     public String showSquadLineByPositions()
@@ -121,4 +143,24 @@ public class Team {
         }
     }
 
+    private void setTotalTeamPrice(){
+        int totPrice = 0;
+        for (int i=1; i<=11;i++)
+        {
+           totPrice += this.player[i].priceInThousandsEuro;
+        }
+
+        this.totalTeamPrice = totPrice;
+    }
+
+    public Footballer getRandomFieldPlayer()
+    {
+        //подава играч от нашия отбор като опонент на играча от противника,
+        //който в момента притежава топката
+        Random x = new Random();
+        int ix = x.nextInt(10)+2; //само полеви играчи, т.е. без вратаря
+
+        return this.player[ix];
+
+    }
 }

@@ -2,6 +2,8 @@ import java.util.Scanner;
 
 public class Main {
 
+    public static Match curMatch;
+
     public static Team[] team = new Team[3];
     //team[0] > всички играчи без клуб (свободни агенти)
     //team[1] > нашият отбор,
@@ -18,87 +20,54 @@ public class Main {
     {
         for (int i=0; i<=2; i++)
         {
-            Team mmm = new Team();   //същинско създаване на обектите
-            team[i] = mmm;
+            //СЪЩИНСКО СЪЗДАВАНЕ НА ОБЕКТИТЕ
+            Team newTeam = new Team("Свободен агент",i);   //цветовете ще са поредни като вземаме i
+            team[i] = newTeam;
         }
 
-        team[0].setTeamName("Свободен агент");  //показва се като принадлежност на играча
-
-        System.out.print("Въведете името на вашия отбор: ");
+        System.out.print("Въведете името на първи отбор: ");
         String teamName  = scn.nextLine();
         team[1].setTeamName(teamName);
 
-        System.out.print("Въведете името на противниковия отбор: ");
+
+        System.out.print("Въведете името на втори отбор: ");
         teamName  = scn.nextLine();
         team[2].setTeamName(teamName);
 
-        team[1].coach = new Coach("Мартин", "Катев", 45);
+        //ХАРДКОД ТРЕНьОРИ
+        team[1].coach = new Coach("Юрген", "Клоп", 55);
         team[1].coach.onWhichTeam = 1;
-        team[2].coach = new Coach("Юрген", "Клоп", 55);
+        team[2].coach = new Coach("Карло", "Анчелоти", 63);
         team[2].coach.onWhichTeam = 2;
 
-        System.out.println(team[1].getTeamName());
+        SquadOperations.createNewPlayers ();
+        SquadOperations.showSquad();
 
-        showSquad(true);
+        autoBuyPlayers();
+        //SquadOperations.buyPlayers(1);
+        //SquadOperations.showSquad();
+        //SquadOperations.buyPlayers(2);
+        SquadOperations.showSquad();
 
-        buyPlayers(1);
-        buyPlayers(2);
-        showSquad(false);
-
-        Match curMatch = new Match(team[1],team[2]);
+        curMatch = new Match(team[1],team[2]);
         curMatch.playGame();
     }
 
-    public static void showSquad(boolean firstTime)
+
+    public static void autoBuyPlayers()
     {
-        String s="";
-        s+= "#   ";
-        s+= Footballer.addIntervals("Име",12);
-        s+= Footballer.addIntervals("Прякор",16);
-        s+= Footballer.addIntervals("Age:",10);
-        s+= Footballer.addIntervals("Position",9);
-        s+= Footballer.addIntervals("Price(K)",9);
-        s+= Footballer.addIntervals("speed",9);
-        s+= Footballer.addIntervals("defend",9);
-        s+= Footballer.addIntervals("stamina",9);
-        s+= Footballer.addIntervals("dribble",9);
-        s+= Footballer.addIntervals("shoot",9);
-        s+= Footballer.addIntervals("clever",9);
-        s+= Footballer.addIntervals("headpl",9);
-        s+= Footballer.addIntervals("football club",20);
-        System.out.println(s);
-
-        for (int i=1;i<=100;i++)
+        for (int c=1; c<=2;c++)
         {
-            if (firstTime) player[i] = new Footballer(); //създава и самите играчи но само при първо извикване!!!
-            System.out.println(Footballer.addIntervals(i, 4)+player[i].toString());
-            if (i%10==0 && i<100) {
-                System.out.println();
-                System.out.println(s);
-            }
-
+            for (int i=1;i<=11;i++)
+                if (i==1)
+                {   //goalkeeper
+                    Main.team[c].coach.buyPlayer(i+c);
+                }
+                else
+                {
+                    Main.team[c].coach.buyPlayer(11*c+i*7);
+                }
         }
-
     }
 
-
-    public static void buyPlayers(int iTrainer)
-    {
-        System.out.println();
-        System.out.print(team[iTrainer].coach.firstName + " " + team[iTrainer].coach.familyName);
-        System.out.println(", моля закупете играчи");
-        System.out.println();
-
-        boolean newBuy = true;
-        while (newBuy)
-        {
-            System.out.print("Въведете номер на играча, който искате да закупите:");
-            int num = scn.nextInt();
-
-            if (num<=100) team[iTrainer].coach.buyPlayer(num);
-            else newBuy = false;
-
-        }
-
-    }
 }

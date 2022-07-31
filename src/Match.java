@@ -1,28 +1,68 @@
+import java.util.Random;
+
 public class Match {
 
     public int currentMinute = 0;
+    public Footballer lastPlayerWithBall;
+    private int[] teamNumbersInCattalog = new int[3];
+
 
     public Team[] team = new Team[3]; //тези инстанции се пренасочват към инстанции създадени в Main
+
+    public String[] scoreBoard = new String[20];
+
 
     public Match(Team team1, Team team2)
     {
         this.team[1] = team1;  //можеше да ги предадем и чрез индекси от мейн инстанциите а тук да = Main.team[ix]
         this.team[2] = team2;  //но така е по-демонстративно
+        this.teamNumbersInCattalog[1] = team1.coach.onWhichTeam;
+        this.teamNumbersInCattalog[2] = team2.coach.onWhichTeam;
+
+        team1.currentEnemyTeam = team2;
+        team2.currentEnemyTeam = team1;
 
     }
-
 
     public void playGame()
     {
         showTeams();
+
+        System.out.println();
+        System.out.println("НАЧАЛО НА СРЕЩАТА!");
+        System.out.println();
+
+        Random x = new Random();
+        int ix = x.nextInt(10)+2;
+
+        while (Main.curMatch.currentMinute<90)
+        {
+            if (currentMinute==0)
+            {
+                putBallInPlayer(Main.team[1].player[ix]);
+            }
+            else
+            {
+                putBallInPlayer(Main.curMatch.lastPlayerWithBall);
+            }
+        }
+
+        System.out.println(getColor(3)+"КРАЙ НА МАЧА"+getColor(0));
+        showCurMatchInfo();
+    }
+
+    public static void putBallInPlayer(Footballer currentFootballer)
+    {
+        Main.curMatch.lastPlayerWithBall = currentFootballer;
+        if (Main.curMatch.currentMinute<95) currentFootballer.play();
     }
 
     public void showTeams()
     {
         printLineIn100('=');
         System.out.println();
-        printCenterIn50(team[1].getTeamName());
-        printCenterIn50(team[2].getTeamName());
+        printCenterIn50(team[1].getTeamName(),team[1].teamColor);
+        printCenterIn50(team[2].getTeamName(),team[2].teamColor);
         System.out.println();
         printLineIn100('=');
         System.out.println();
@@ -31,18 +71,73 @@ public class Match {
         {
             for (int tm=1;tm<=2;tm++)
             {
-                printLeftIn50(team[tm].player[pos].shortInfo());
+                if (pos<10)  printLeftIn50(pos+") " + team[tm].player[pos].shortInfoForTimeList(),team[tm].teamColor);
+                else printLeftIn50(pos+")" + team[tm].player[pos].shortInfoForTimeList(), team[tm].teamColor);
             }
             System.out.println();
         }
 
         printLineIn100('=');
         System.out.println();
+        printCenterIn50("Обща цена:" + team[1].totalTeamPrice + "K", team[1].teamColor);
+        printCenterIn50("Обща цена:" + team[2].totalTeamPrice + "K",team[1].teamColor);
+        System.out.println();
     }
 
-
-    public void printLeftIn50(String txt)
+    public static void showRandomGoalSituation(Footballer forward, Footballer goalkeeper)
     {
+        Random x = new Random();
+        int situation = x.nextInt(3);
+
+        String f = forward.getFullName();
+        String g = goalkeeper.getFullName();
+
+        forward.fromTeam.teamTimeBallOwnership=0;
+
+        //нека да добави инфото за гола към информацията за таблото --------------------------------------------------
+        int brGoals = Main.team[1].teamGoalsInCurrentMatch+Main.team[2].teamGoalsInCurrentMatch;
+        Main.curMatch.scoreBoard[brGoals] = Main.team[1].teamGoalsInCurrentMatch + ":" + Main.team[2].teamGoalsInCurrentMatch+
+                " " +forward.getFullName()+ " "+Main.curMatch.currentMinute+ " мин. ";
+
+        //ако е за гостите, нека да добави малък отстъп в ляво
+        if (forward.fromTeam.coach.onWhichTeam == 2) Main.curMatch.scoreBoard[brGoals] = "    " + Main.curMatch.scoreBoard[brGoals];
+        //-------------------------------------------------------------------------------------------------------------
+
+        System.out.print(getColor(forward.fromTeam.teamColor));
+        System.out.print("!!!GOAL!!! " + getColor(0));
+
+        switch (situation)
+        {
+            case 0 -> System.out.println("" + f + " забива топката неспасяемо във вратата на " + goalkeeper.fromTeam.getTeamName());
+            case 1 -> System.out.println("Страхотен удар на " + f + " и безпомощен на вратата " +g);
+            case 2 -> System.out.println(f + " намира пролука през купът от играчи на " + goalkeeper.fromTeam.getTeamName());
+        }
+
+        showCurMatchInfo();
+
+    }
+
+    public static void showCurMatchInfo()
+    {
+        int totGoals = Main.team[1].teamGoalsInCurrentMatch+Main.team[2].teamGoalsInCurrentMatch;
+
+        Main.curMatch.printLineIn100('='); System.out.println();
+        System.out.println(Main.team[1].getColoredTeamName() + " " +
+                Main.team[1].teamGoalsInCurrentMatch + ":" + Main.team[2].teamGoalsInCurrentMatch+ " "+
+                Main.team[2].getColoredTeamName());
+        Main.curMatch.printLineIn100('='); System.out.println();
+
+        for (int goals = 0 ; goals<=totGoals; goals++)
+        {
+            if (goals>0) System.out.println(Main.curMatch.scoreBoard[goals]);
+        }
+
+        Main.curMatch.printLineIn100('='); System.out.println();
+    }
+
+    public void printLeftIn50(String txt, int color)
+    {
+        String clr = getColor(color);
         String finalText="";
 
         for (int i=0;i<50;i++)
@@ -51,11 +146,28 @@ public class Match {
             else finalText+=" ";
         }
 
-        System.out.print(finalText);
+        System.out.print(clr+finalText);
     }
 
-    public void printCenterIn50(String txt)
+    public static String getColor(int color)
     {
+        String clr;
+        switch (color) {
+            case 0 -> clr = "\u001B[0m"; //normal
+            case 1 -> clr = "\u001B[36m";  //cyan
+            case 2 -> clr = "\u001B[31m"; //pink
+            case 3 -> clr = "\u001B[32m"; //green
+            case 4 -> clr = "\u001B[33m"; //yellow
+            case 5 -> clr = "\u001B[34m"; //purple
+            case 6 -> clr = "\u001B[35m"; //red
+            default -> clr = "\u001B[30m"; //мисля е болд
+        }
+        return clr;
+    }
+
+    public void printCenterIn50(String txt, int color)
+    {
+        String clr = getColor(color);
         String finalTxt = "";
         String leftStr = "";
         String rightStr = "";
@@ -78,11 +190,12 @@ public class Match {
             finalTxt += " ";
         }
 
-        System.out.print(finalTxt);
+        System.out.print(clr+finalTxt);
     }
 
     public void printLineIn100(char c)
     {
+        String clr = getColor(0);
         String s100="";
 
         for (int i=0;i<100;i++)
@@ -90,7 +203,7 @@ public class Match {
             s100 += c;
         }
 
-        System.out.print(s100);
+        System.out.print(clr+s100);
     }
 
 

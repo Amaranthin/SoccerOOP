@@ -1,33 +1,34 @@
+import java.util.Random;
+
 public class Footballer extends Person{
 
     public String fieldPosition;
-
-    //Skils
-    private int headplaying; //игра с глава
-    private int speed; //бързина
-    private int defence; //защита
-    private int stamina; //издържливост
-    private int dribble; //дрибъл
-    private int cleverness; //хитрост
-    private int shoot; //стрелба
-
-    private int priceInThousandsEuro;
+    private String shortPosition;
+    public int priceInThousandsEuro;
 
     public int playerOnWhichTeam; //0 - free agent
+    public Team fromTeam; //за бърза обратна връзка
 
-    public int fresh = 100;
+    public int freshness = 100;  //свежест в текущия мач
 
+    //BasicSkills
+    protected int headplaying; //игра с глава
+    protected int speed; //бързина
+    protected int defence; //защита
+    private int stamina; //издържливост
+    protected int dribble; //дрибъл
+    protected int cleverness; //хитрост
+    protected int shoot; //стрелба
+    protected int passing; //пасове
 
+    public Footballer(){}
 
-    private int passing; //пасове
-    
-    private String shortPosition;
-
-    public Footballer()
+    public Footballer(String shortPosition)
     {
 
         super();
-        this.fieldPosition = setRandomPosition();
+        setPosition(shortPosition);
+
         this.headplaying = setRandomSkill();
         this.speed = setRandomSkill();
         this.defence = setRandomSkill();
@@ -35,50 +36,50 @@ public class Footballer extends Person{
         this.dribble = setRandomSkill();
         this.cleverness = setRandomSkill();
         this.shoot = setRandomSkill();
+        this.passing = setRandomSkill();
         this.playerOnWhichTeam = 0;
 
-        double avgSkill = (2*speed+defence+2*stamina+dribble+2*cleverness+shoot+headplaying)/10;
+        double avgSkill = (2*speed + defence + 2*stamina + dribble + 2*cleverness + shoot + headplaying)/10;
         int price = (int) (50 + 5*(avgSkill-50) + 10*((int) complexSkill()));
         this.priceInThousandsEuro = price;
 
-        if (this.fieldPosition.equals("Defender")) {
+        if (shortPosition.equals("DEF")) {
             this.defence +=15;
+            this.passing +=10;
             this.headplaying +=10;
         }
 
-        if (this.fieldPosition.equals("Midfield")) {
+        if (shortPosition.equals("MID")) {
             this.stamina +=10;
-            this.passing +=15;
-            this.cleverness +=10;
+            this.passing +=25;
+            this.cleverness +=20;
             this.shoot +=10;
         }
 
-        if (this.fieldPosition.equals("Forward")) {
+        if (shortPosition.equals("FWD")) {
             this.headplaying +=5;
             this.dribble +=15;
-            this.passing +=7;
+            this.passing +=15;
             this.shoot +=20;
         }
 
-        if (this.fieldPosition.equals("Goalkeeper")) {
+        if (shortPosition.equals("GK")) {
             this.defence +=30;
         }
         
     }
 
-    private String setRandomPosition()
+    private  void setPosition(String shortPosition)
     {
-        int ps = rnd.nextInt(10)+1;
+        this.shortPosition = shortPosition;
 
-        String position = "";
-        switch (ps) {
-            case 1,2 -> {position = "Goalkeeper"; this.shortPosition = "GK";}
-            case 3,4,5 -> {position = "Defender"; this.shortPosition = "DEF";}
-            case 6,7,8 -> {position =  "Midfield"; this.shortPosition = "MID";}
-            case 9,10,11 -> {position = "Forward"; this.shortPosition = "FWD";}
+        switch (shortPosition) {
+            case "GK" -> this.fieldPosition = "Goalkeeper";
+            case "DEF" -> this.fieldPosition = "Defender";
+            case "MID" -> this.fieldPosition =  "Midfield";
+            case "FWD" -> this.fieldPosition = "Forward";
         }
 
-        return position;
     }
 
     private int setRandomSkill()
@@ -106,13 +107,13 @@ public class Footballer extends Person{
         return s;
     }
 
-    public String shortInfo()
+    public String shortInfoForTimeList()
     {
         String s = "";
         s += addIntervals(this.firstName,12);
         s += addIntervals(this.familyName,16);
         s += addIntervals(this.shortPosition,9);
-        s += addIntervals(this.priceInThousandsEuro, 9);
+        s += addIntervals(this.priceInThousandsEuro+"K", 9);
         return s;
     }
 
@@ -153,11 +154,118 @@ public class Footballer extends Person{
     }
 
     public double singleDiff(int skill)
-    {
+    {   //с колко уменията му надхвърлят определено ниво
+
         if (skill>50) return Math.sqrt(skill-50);
         else return 1;
     }
 
+    public void play()
+    {
+        upMinute();
+        //System.out.print("Топката е в притежание на " + this.getFullName()+". ");
+
+        Random x = new Random();
+        int act = x.nextInt(100)+1;
+        int dangerAttack = 5*this.fromTeam.teamTimeBallOwnership;
+
+        act += dangerAttack;
+        if (act<60) createPass();
+        else if (act<90) makeDribble();
+        else makeShoot();
+    }
+
+    protected void makeDribble()
+    {
+        Random x = new Random();
+        int ourAct = x.nextInt(100)+1;
+        int ourSkill = 2*this.dribble + this.freshness + this.stamina + this.cleverness + ourAct;
+
+        int enemyAct = x.nextInt(100)+1;
+
+        Footballer oponent = this.fromTeam.currentEnemyTeam.getRandomFieldPlayer();
+        int enemySkill = 3*oponent.fromTeam.defenders + 2*oponent.defence + oponent.freshness + oponent.stamina + oponent.cleverness + enemyAct;
+
+        if (ourSkill>=enemySkill)
+        {
+            this.fromTeam.teamTimeBallOwnership++;
+            System.out.println(this.getFullName() + " финтира играч " + oponent.getFullName());
+        }
+        else
+        {
+            this.fromTeam.teamTimeBallOwnership = 0;
+            System.out.println(this.getFullName() + " губи топката от играч " + oponent.getFullName());
+            Match.putBallInPlayer(oponent);
+        }
+    }
+
+    protected void createPass()
+    {
+        Random x = new Random();
+        int ourAct = x.nextInt(100)+1;
+        int ourSkill = 4*this.fromTeam.midfields+ 3*this.passing + this.freshness + this.cleverness + ourAct;
+
+        int enemyAct = x.nextInt(100)+1;
+
+        Footballer oponent = this.fromTeam.currentEnemyTeam.getRandomFieldPlayer();
+        int enemySkill = 4*oponent.fromTeam.midfields + 3*oponent.fromTeam.defenders + 2*oponent.defence + oponent.freshness + oponent.cleverness + enemyAct;
+
+        if (ourSkill>=enemySkill)
+        {
+            this.fromTeam.teamTimeBallOwnership++;
+            Footballer ourPlayer =  this.fromTeam.getRandomFieldPlayer();
+            System.out.println(this.getFullName() + " подава на " + ourPlayer.getFullName());
+            Match.putBallInPlayer(ourPlayer);
+        }
+        else
+        {
+            this.fromTeam.teamTimeBallOwnership = 0;
+            System.out.println(oponent.getFullName() + " пресича опита за пас на играч " + this.getFullName());
+            Match.putBallInPlayer(oponent);
+        }
+    }
+
+    protected void makeShoot()
+    {
+        Random x = new Random();
+        int ourAct = x.nextInt(100)+1;
+        int ourSkill = 2*this.shoot + this.freshness + this.stamina + ourAct + 3*this.fromTeam.teamTimeBallOwnership;
+
+        int enemyAct = x.nextInt(100)+1;
+
+        Footballer oponent = this.fromTeam.currentEnemyTeam.player[1];
+        int enemySkill = 5*oponent.fromTeam.defenders-10 + 2*oponent.defence + oponent.freshness + oponent.cleverness + enemyAct;
+
+        if (ourSkill>=enemySkill)
+        {
+            this.fromTeam.teamGoalsInCurrentMatch++;
+            Match.showRandomGoalSituation(this, oponent);
+            Match.putBallInPlayer(this.fromTeam.currentEnemyTeam.getRandomFieldPlayer());
+        }
+        else
+        {
+            this.fromTeam.teamTimeBallOwnership = 0;
+            System.out.println("Играч " + oponent.getFullName() + " ИЗБИВА УДАРА на играч " + this.getFullName());
+            Match.putBallInPlayer(oponent);
+        }
+    }
+
+    protected void upMinute()
+    {
+        Main.curMatch.currentMinute ++;
+        System.out.print(Match.getColor(this.fromTeam.teamColor));
+        System.out.print("@"+Main.curMatch.lastPlayerWithBall.fromTeam.teamTimeBallOwnership+"@ ");
+        System.out.print(Match.getColor(0));
+        System.out.print(Main.curMatch.currentMinute+ "мин. ");
+
+        this.freshness += -2; //всяко действие на този играч да го поизмаря
+    }
+
+    public String getFullName() //Colored
+    {
+        String clr = Match.getColor(this.fromTeam.teamColor);
+        return clr+this.firstName + " " + this.familyName+Match.getColor(0);
+    }
 
 }
 
