@@ -103,7 +103,7 @@ public class Match {
         System.out.print("!!!GOAL!!! " + getColor(0));
 
         int situation = x.nextInt(6);
-        String greda = (x.nextInt(2)==0) ? "левият" : "десният";
+        String greda = (x.nextInt(2)==0) ? "левия" : "десния";
 
         switch (situation)
         {
