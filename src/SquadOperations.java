@@ -1,5 +1,5 @@
-public class SquadOperations {
-
+public class SquadOperations
+{
     public static void createNewPlayers()
     {
         for (int i=1;i<=100;i++) {
@@ -13,7 +13,7 @@ public class SquadOperations {
     public static void showSquad()
     {
         String s="";
-        s+= "#   ";
+        s+= Match.getColor(3) + "#   ";
         s+= Footballer.addIntervals("Име",12);
         s+= Footballer.addIntervals("Прякор",16);
         s+= Footballer.addIntervals("Age:",10);
@@ -27,6 +27,7 @@ public class SquadOperations {
         s+= Footballer.addIntervals("clever",9);
         s+= Footballer.addIntervals("headpl",9);
         s+= Footballer.addIntervals("football club",20);
+        s += Match.getColor(0);
         System.out.println(s);
 
         for (int i=1;i<=100;i++)
@@ -39,7 +40,6 @@ public class SquadOperations {
             }
         }
     }
-
 
     public static void buyPlayers(int iTrainer)
     {
@@ -72,6 +72,28 @@ public class SquadOperations {
             else needFromBuy = false; //ако искаме да прекратим въвеждането по други причини, въвеждаме над 100
 
             if (Main.team[iTrainer].countFootballers ==11) needFromBuy = false; //за изход след 11тия закупен
+        }
+    }
+
+    public static void autoBuyPlayers() {
+        for (int tm = 1; tm <= 2; tm++) {
+            for (int i = 1; i <= 11; i++) {
+                if (i == 1) {   //goalkeeper
+                    Main.team[tm].coach.buyPlayer(i + tm-1);
+                } else {
+                    int number;
+                    if (i < 6) {
+                        number = 8;
+                        Main.team[tm].coach.buyPlayer(number + 5 * tm + i);
+                    } else if (i < 10) {
+                        number = 39;
+                        Main.team[tm].coach.buyPlayer(number + 5 * tm + i);
+                    } else {
+                        number = 62;
+                        Main.team[tm].coach.buyPlayer(number + 3 * tm + i);
+                    }
+                }
+            }
         }
     }
 }

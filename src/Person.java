@@ -13,7 +13,6 @@ public class Person {
         this.age = age;
         this.firstName = firstName;
         this.familyName = familyName;
-
     }
 
     public Person()
@@ -94,9 +93,7 @@ public class Person {
         names[60] = "Финтослав";
 
         int x = rnd.nextInt(names.length-1)+1;
-
         return names[x];
-
     }
 
     private String getRandomAlias() {
@@ -148,7 +145,6 @@ public class Person {
         alias[44] = "Симуланта";
 
         int x = rnd.nextInt(alias.length-1)+1;
-
         return alias[x];
     }
 

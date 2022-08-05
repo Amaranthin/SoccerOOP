@@ -1,16 +1,13 @@
 import java.util.Random;
+import java.util.Scanner;
 
 public class Match {
 
     public int currentMinute = 0;
     public Footballer lastPlayerWithBall;
     private int[] teamNumbersInCattalog = new int[3];
-
-
     public Team[] team = new Team[3]; //тези инстанции се пренасочват към инстанции създадени в Main
-
     public String[] scoreBoard = new String[20];
-
 
     public Match(Team team1, Team team2)
     {
@@ -21,24 +18,23 @@ public class Match {
 
         team1.currentEnemyTeam = team2;
         team2.currentEnemyTeam = team1;
-
     }
 
     public void playGame()
     {
-        showTeams();
+        Scanner scn = new Scanner(System.in);
+        System.out.println("Изберете скорост на играта. Препоръчителна скорост [0-200], като 200 е най-бавната.");
+        Main.gameSpeed = 1000*scn.nextInt();
 
         System.out.println();
-        System.out.println("НАЧАЛО НА СРЕЩАТА!");
-        System.out.println();
-
-        Random x = new Random();
-        int ix = x.nextInt(10)+2;
+        System.out.println(getColor(3)+"НАЧАЛО НА СРЕЩАТА"+getColor(0));
 
         while (Main.curMatch.currentMinute<90)
         {
             if (currentMinute==0)
             {
+                Random x = new Random();
+                int ix = x.nextInt(10)+2;
                 putBallInPlayer(Main.team[1].player[ix]);
             }
             else
@@ -51,6 +47,7 @@ public class Match {
         showCurMatchInfo();
     }
 
+
     public static void putBallInPlayer(Footballer currentFootballer)
     {
         Main.curMatch.lastPlayerWithBall = currentFootballer;
@@ -60,12 +57,10 @@ public class Match {
     public void showTeams()
     {
         printLineIn100('=');
-        System.out.println();
         printCenterIn50(team[1].getTeamName(),team[1].teamColor);
         printCenterIn50(team[2].getTeamName(),team[2].teamColor);
         System.out.println();
         printLineIn100('=');
-        System.out.println();
 
         for (int pos=1;pos<=11;pos++)
         {
@@ -78,21 +73,22 @@ public class Match {
         }
 
         printLineIn100('=');
-        System.out.println();
         printCenterIn50("Обща цена:" + team[1].totalTeamPrice + "K", team[1].teamColor);
-        printCenterIn50("Обща цена:" + team[2].totalTeamPrice + "K",team[1].teamColor);
+        printCenterIn50("Обща цена:" + team[2].totalTeamPrice + "K",team[2].teamColor);
         System.out.println();
+        printLineIn100('=');
+        printCenterIn50(team[1].coach.toString(), team[1].teamColor);
+        printCenterIn50(team[2].coach.toString(), team[2].teamColor);
+        System.out.println();
+        printLineIn100('=');
     }
 
     public static void showRandomGoalSituation(Footballer forward, Footballer goalkeeper)
     {
         Random x = new Random();
-        int situation = x.nextInt(3);
 
-        String f = forward.getFullName();
-        String g = goalkeeper.getFullName();
-
-        forward.fromTeam.teamTimeBallOwnership=0;
+        String fwPlayer = forward.getFullName();
+        String gkPlayer = goalkeeper.getFullName();
 
         //нека да добави инфото за гола към информацията за таблото --------------------------------------------------
         int brGoals = Main.team[1].teamGoalsInCurrentMatch+Main.team[2].teamGoalsInCurrentMatch;
@@ -106,12 +102,33 @@ public class Match {
         System.out.print(getColor(forward.fromTeam.teamColor));
         System.out.print("!!!GOAL!!! " + getColor(0));
 
+        int situation = x.nextInt(6);
+        String greda = (x.nextInt(2)==0) ? "левият" : "десният";
+
         switch (situation)
         {
-            case 0 -> System.out.println("" + f + " забива топката неспасяемо във вратата на " + goalkeeper.fromTeam.getTeamName());
-            case 1 -> System.out.println("Страхотен удар на " + f + " и безпомощен на вратата " +g);
-            case 2 -> System.out.println(f + " намира пролука през купът от играчи на " + goalkeeper.fromTeam.getTeamName());
+            case 0 -> System.out.println("Изстрелът на " + fwPlayer + " среща " + greda + " страничен стълб и топката се оплита в мрежата.");
+            case 1 -> System.out.println(fwPlayer + " забива топката неспасяемо във вратата на " + goalkeeper.fromTeam.getColoredTeamName());
+            case 2 -> System.out.println("Страхотният удар на " + fwPlayer + " не остави никакви шансове на " + gkPlayer);
+            case 3 -> System.out.println(fwPlayer + " намира пролука през купът от играчи на " + goalkeeper.fromTeam.getColoredTeamName());
+            case 4 -> System.out.println(fwPlayer + " остана очи в очи срещу " + gkPlayer + " и не се поколеба да го накаже!");
+            case 5 -> System.out.println(fwPlayer + " хитро промуши топката между краката на " + gkPlayer + "! Гол за " + goalkeeper.fromTeam.getColoredTeamName() + "!");
+
         }
+
+        situation = x.nextInt(3);
+        if (situation==0) System.out.println("Какъв гол само за отборът на " + forward.fromTeam.getColoredTeamName());
+
+        //Ако сме владели по-дълго топката може да добави допълнителна реплика
+        if (forward.fromTeam.teamTimeBallOwnership>2)
+        {
+            int p = x.nextInt(3);
+            if (p==1) System.out.println("Прекрасна комбинация за отбора на " + forward.fromTeam.getColoredTeamName());
+            if (p==2) System.out.println("Натискът на " + forward.fromTeam.getColoredTeamName() + " се увенча с успех!");
+        }
+
+        //Нека нулираме владеенето на топката
+        forward.fromTeam.teamTimeBallOwnership=0;
 
         showCurMatchInfo();
 
@@ -121,18 +138,18 @@ public class Match {
     {
         int totGoals = Main.team[1].teamGoalsInCurrentMatch+Main.team[2].teamGoalsInCurrentMatch;
 
-        Main.curMatch.printLineIn100('='); System.out.println();
+        Main.curMatch.printLineIn100('=');
         System.out.println(Main.team[1].getColoredTeamName() + " " +
                 Main.team[1].teamGoalsInCurrentMatch + ":" + Main.team[2].teamGoalsInCurrentMatch+ " "+
                 Main.team[2].getColoredTeamName());
-        Main.curMatch.printLineIn100('='); System.out.println();
+        Main.curMatch.printLineIn100('=');
 
         for (int goals = 0 ; goals<=totGoals; goals++)
         {
             if (goals>0) System.out.println(Main.curMatch.scoreBoard[goals]);
         }
 
-        Main.curMatch.printLineIn100('='); System.out.println();
+        Main.curMatch.printLineIn100('=');
     }
 
     public void printLeftIn50(String txt, int color)
@@ -204,7 +221,16 @@ public class Match {
         }
 
         System.out.print(clr+s100);
+        System.out.println();
     }
 
+    public static void spendTime()
+    {
+        String c = "";
+        for (int i=1; i < Main.gameSpeed; i++)
+        {
+            c += " ";
+        }
+    }
 
 }

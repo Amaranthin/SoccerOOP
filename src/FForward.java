@@ -19,7 +19,7 @@ public class FForward extends Footballer{
 
         act += dangerAttack;
         if (act<40) createPass();
-        else if (act<80) makeDribble();
+        else if (act<77) makeDribble();
         else makeShoot();
     }
 

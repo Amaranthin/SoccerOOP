@@ -163,7 +163,6 @@ public class Footballer extends Person{
     public void play()
     {
         upMinute();
-        //System.out.print("Топката е в притежание на " + this.getFullName()+". ");
 
         Random x = new Random();
         int act = x.nextInt(100)+1;
@@ -184,7 +183,7 @@ public class Footballer extends Person{
         int enemyAct = x.nextInt(100)+1;
 
         Footballer oponent = this.fromTeam.currentEnemyTeam.getRandomFieldPlayer();
-        int enemySkill = 3*oponent.fromTeam.defenders + 2*oponent.defence + oponent.freshness + oponent.stamina + oponent.cleverness + enemyAct;
+        int enemySkill = 5*oponent.fromTeam.defenders-10 + 2*oponent.defence + oponent.freshness + oponent.stamina + oponent.cleverness + enemyAct;
 
         if (ourSkill>=enemySkill)
         {
@@ -194,7 +193,7 @@ public class Footballer extends Person{
         else
         {
             this.fromTeam.teamTimeBallOwnership = 0;
-            System.out.println(this.getFullName() + " губи топката от играч " + oponent.getFullName());
+            System.out.println(this.getFullName() + " губи топката от " + oponent.getFullName());
             Match.putBallInPlayer(oponent);
         }
     }
@@ -203,7 +202,7 @@ public class Footballer extends Person{
     {
         Random x = new Random();
         int ourAct = x.nextInt(100)+1;
-        int ourSkill = 4*this.fromTeam.midfields+ 3*this.passing + this.freshness + this.cleverness + ourAct;
+        int ourSkill = 5*this.fromTeam.midfields + 3*this.passing + this.freshness + this.cleverness + ourAct;
 
         int enemyAct = x.nextInt(100)+1;
 
@@ -213,14 +212,35 @@ public class Footballer extends Person{
         if (ourSkill>=enemySkill)
         {
             this.fromTeam.teamTimeBallOwnership++;
-            Footballer ourPlayer =  this.fromTeam.getRandomFieldPlayer();
-            System.out.println(this.getFullName() + " подава на " + ourPlayer.getFullName());
+
+            Footballer ourPlayer  =  this.fromTeam.getRandomFieldPlayer();
+            while (ourPlayer == Main.curMatch.lastPlayerWithBall)
+            {
+                ourPlayer = this.fromTeam.getRandomFieldPlayer(); //за да не подава сам на себе си
+            }
+
+            if (this.shortPosition.equals("GK"))
+            {
+                System.out.println(this.getFullName() + " вкарва топката в игра и тя попада в " + ourPlayer.getFullName());
+            }
+            else
+            {
+                System.out.println(this.getFullName() + " подава на " + ourPlayer.getFullName());
+            }
+
             Match.putBallInPlayer(ourPlayer);
         }
         else
         {
             this.fromTeam.teamTimeBallOwnership = 0;
-            System.out.println(oponent.getFullName() + " пресича опита за пас на играч " + this.getFullName());
+            if (this.shortPosition.equals("GK"))
+            {
+                System.out.println(this.getFullName() + " вкарва топката в игра, но тя попада в " + oponent.getFullName());
+            }
+            else {
+                System.out.println(oponent.getFullName() + " пресича опита за пас на " + this.getFullName());
+            }
+
             Match.putBallInPlayer(oponent);
         }
     }
@@ -234,7 +254,7 @@ public class Footballer extends Person{
         int enemyAct = x.nextInt(100)+1;
 
         Footballer oponent = this.fromTeam.currentEnemyTeam.player[1];
-        int enemySkill = 5*oponent.fromTeam.defenders-10 + 2*oponent.defence + oponent.freshness + oponent.cleverness + enemyAct;
+        int enemySkill = 5*oponent.fromTeam.defenders + 2*oponent.defence + oponent.freshness + oponent.cleverness + enemyAct;
 
         if (ourSkill>=enemySkill)
         {
@@ -245,16 +265,22 @@ public class Footballer extends Person{
         else
         {
             this.fromTeam.teamTimeBallOwnership = 0;
-            System.out.println("Играч " + oponent.getFullName() + " ИЗБИВА УДАРА на играч " + this.getFullName());
+            int strike = x.nextInt(10);
+            if (strike<=5) System.out.println(this.getFullName() + " стреля към вратата, но ударът му е избит от " + oponent.getFullName());
+            if (strike>5) System.out.println(this.getFullName() + " стреля към вратата, но ударът му минава далеч от целта");
+
             Match.putBallInPlayer(oponent);
         }
     }
 
     protected void upMinute()
     {
+        Match.spendTime();
+
         Main.curMatch.currentMinute ++;
         System.out.print(Match.getColor(this.fromTeam.teamColor));
-        System.out.print("@"+Main.curMatch.lastPlayerWithBall.fromTeam.teamTimeBallOwnership+"@ ");
+        //В @ @ отпечатваме колко е задържана топката от отбора, колкото по-дълго е, по-опасна става атаката
+        System.out.print("@"+(1+Main.curMatch.lastPlayerWithBall.fromTeam.teamTimeBallOwnership)+"@ ");
         System.out.print(Match.getColor(0));
         System.out.print(Main.curMatch.currentMinute+ "мин. ");
 

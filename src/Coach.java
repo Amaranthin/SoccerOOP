@@ -27,8 +27,13 @@ public class Coach extends Person{
         }
         else
         {
-            System.out.println("Този играч вече е закупен!");
+            System.out.print("Този играч вече е закупен от отборът на ");
+            System.out.println(Main.team[Main.player[ix].playerOnWhichTeam].getColoredTeamName());
         }
     }
 
+    public String toString()
+    {
+        return this.firstName + " " + this.familyName + " " + this.age + " г.";
+    }
 }
