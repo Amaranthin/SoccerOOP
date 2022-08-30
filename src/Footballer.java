@@ -96,14 +96,14 @@ public class Footballer extends Person{
         s += addIntervals("Age:"+ this.age,10);
         s += addIntervals(this.shortPosition,9);
         s += addIntervals(this.priceInThousandsEuro, 9);
-        s+= addIntervals(this.speed,9);
-        s+= addIntervals(this.defence,9);
-        s+= addIntervals(this.stamina,9);
-        s+= addIntervals(this.dribble,9);
-        s+= addIntervals(this.shoot,9);
-        s+= addIntervals(this.cleverness,9);
-        s+= addIntervals(this.headplaying,9);
-        s+= addIntervals(Main.team[this.playerOnWhichTeam].getTeamName(),20);
+        s += addIntervals(this.speed,9);
+        s += addIntervals(this.defence,9);
+        s += addIntervals(this.stamina,9);
+        s += addIntervals(this.dribble,9);
+        s += addIntervals(this.shoot,9);
+        s += addIntervals(this.cleverness,9);
+        s += addIntervals(this.headplaying,9);
+        s += addIntervals(Main.team[this.playerOnWhichTeam].getTeamName(),20);
         return s;
     }
 

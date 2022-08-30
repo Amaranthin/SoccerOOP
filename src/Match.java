@@ -112,7 +112,7 @@ public class Match {
             case 2 -> System.out.println("Страхотният удар на " + fwPlayer + " не остави никакви шансове на " + gkPlayer);
             case 3 -> System.out.println(fwPlayer + " намира пролука през купът от играчи на " + goalkeeper.fromTeam.getColoredTeamName());
             case 4 -> System.out.println(fwPlayer + " остана очи в очи срещу " + gkPlayer + " и не се поколеба да го накаже!");
-            case 5 -> System.out.println(fwPlayer + " хитро промуши топката между краката на " + gkPlayer + "! Гол за " + goalkeeper.fromTeam.getColoredTeamName() + "!");
+            case 5 -> System.out.println(fwPlayer + " хитро промуши топката между краката на " + gkPlayer + "! Гол за " + forward.fromTeam.getColoredTeamName() + "!");
 
         }
 
